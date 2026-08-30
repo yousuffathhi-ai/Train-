@@ -6,6 +6,32 @@ export type CameraViewMode = 'cab360' | 'driver' | 'cab' | 'chase' | 'coastal' |
 
 export type SignalAspect = 'green' | 'double_yellow' | 'yellow' | 'red';
 
+export interface ScenicPoint {
+  id: string;
+  name: string;
+  nameTamil: string;
+  nameSinhala: string;
+  position: number; // meters from Batticaloa
+  category: 'bridge' | 'lagoon' | 'monument' | 'coastline' | 'temple' | 'harbor' | 'surf_point';
+  description: string;
+  tagline: string;
+  recommendedSpeed: number; // km/h for scenic viewing
+  icon: string;
+  highlightFact: string;
+}
+
+export interface TrainingStep {
+  id: string;
+  title: string;
+  subTitle: string;
+  category: 'startup' | 'throttle' | 'braking' | 'safety' | 'station' | 'special';
+  instruction: string;
+  keyShortcut?: string;
+  locoSpecificNote?: string;
+  diagramIcon: string;
+  validationCheck: string;
+}
+
 export interface StationData {
   id: number;
   name: string;

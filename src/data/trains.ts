@@ -2,28 +2,47 @@ import { LocomotiveConfig } from '../types';
 
 export const LOCOMOTIVES: LocomotiveConfig[] = [
   {
+    id: 'm2_diesel_loco',
+    name: 'Class M2 Heritage Diesel-Electric',
+    classType: 'General Motors EMD G12 Road Switcher',
+    description: 'Iconic Sri Lankan Railways diesel locomotive operating in the historic Blue & Turquoise livery with silver trim, hauling classic maroon Romanian passenger coaches.',
+    color: '#006699', // Classic Sri Lankan Railways Teal-Blue
+    accentColor: '#F59E0B', // Gold lining stripe
+    stripeColor: '#E2E8F0', // Silver / White band
+    roofColor: '#475569',
+    maxSpeed: 105,
+    powerKW: 1425,
+    weightTons: 79,
+    hornType: 'deep_diesel',
+    coachCount: 4,
+    coachColor: '#881337', // Iconic Red Romanian Passenger Coaches (moulded maroon red)
+    coachStripe: '#FEF08A', // Cream / Gold window trim
+    unlockedAtLevel: 1,
+    iconName: 'TrainTrack'
+  },
+  {
     id: 's13_blue_demu',
-    name: 'Class S13 Blue DEMU',
-    classType: 'Diesel Multiple Unit',
-    description: 'Modern CRRC Qingdao Sifang DMU power car operating Sri Lankan express coastal services with aerodynamic streamlined nose and electronic destination display.',
+    name: 'Class S13 Coastal DEMU',
+    classType: 'Diesel Multiple Unit Express',
+    description: 'CRRC Qingdao Sifang DMU power car operating Sri Lankan express coastal services with aerodynamic streamlined nose and electronic destination display.',
     color: '#0055A5',
     accentColor: '#CCFF00',
     stripeColor: '#FFFFFF',
-    roofColor: '#475569',
+    roofColor: '#334155',
     maxSpeed: 120,
     powerKW: 1950,
     weightTons: 68,
     hornType: 'dual_tone',
     coachCount: 4,
-    coachColor: '#0055A5',
-    coachStripe: '#CCFF00',
-    unlockedAtLevel: 1,
-    iconName: 'TrainTrack'
+    coachColor: '#881337', // Red Romanian Coaches
+    coachStripe: '#FEF08A',
+    unlockedAtLevel: 2,
+    iconName: 'Zap'
   },
   {
     id: 'm4_diesel_loco',
-    name: 'Class M4 / M8 Classic Diesel',
-    classType: 'Diesel-Electric Locomotive',
+    name: 'Class M4 Classic MLW Diesel',
+    classType: 'Montreal Locomotive Works Heavy Road Switcher',
     description: 'Iconic heavy road switcher locomotive manufactured by Montreal Locomotive Works (MLW), renowned for hauling classic Sri Lankan maroon express coaches.',
     color: '#881337', // Crimson / Maroon
     accentColor: '#0284C7', // Sky Blue band
@@ -34,15 +53,15 @@ export const LOCOMOTIVES: LocomotiveConfig[] = [
     weightTons: 84,
     hornType: 'deep_diesel',
     coachCount: 5,
-    coachColor: '#881337',
+    coachColor: '#881337', // Red Romanian Coaches
     coachStripe: '#F59E0B',
-    unlockedAtLevel: 2,
+    unlockedAtLevel: 3,
     iconName: 'ShieldAlert'
   },
   {
     id: 's11_red_express',
-    name: 'Class S11 / S12 Red Express',
-    classType: 'Fast Intercity DMU',
+    name: 'Class S11 Fast Intercity DMU',
+    classType: 'High-Speed Commuter DMU',
     description: 'High-speed CSR Ziyang intercity passenger set in fiery crimson red and graphite livery, built specifically for commuter acceleration and high passenger throughput.',
     color: '#DC2626',
     accentColor: '#FFFFFF',
@@ -53,27 +72,8 @@ export const LOCOMOTIVES: LocomotiveConfig[] = [
     weightTons: 72,
     hornType: 'express_chime',
     coachCount: 4,
-    coachColor: '#DC2626',
+    coachColor: '#881337', // Red Romanian Coaches
     coachStripe: '#FFFFFF',
-    unlockedAtLevel: 3,
-    iconName: 'Zap'
-  },
-  {
-    id: 'm2_heritage_blue',
-    name: 'Class M2 Heritage Blue Prince',
-    classType: 'Historic Diesel-Electric (GMD GM-EMD)',
-    description: 'Legendary Canadian General Motors diesel locomotive operating since 1954 in Sri Lanka with distinctive royal blue & silver streamlining.',
-    color: '#1E3A8A',
-    accentColor: '#CBD5E1',
-    stripeColor: '#E2E8F0',
-    roofColor: '#94A3B8',
-    maxSpeed: 100,
-    powerKW: 1425,
-    weightTons: 79,
-    hornType: 'deep_diesel',
-    coachCount: 4,
-    coachColor: '#881337',
-    coachStripe: '#E2E8F0',
     unlockedAtLevel: 4,
     iconName: 'Award'
   }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { TrainSimulatorScene } from './components/3d/TrainSimulatorScene';
 import { LandscapeHUD } from './components/ui/LandscapeHUD';
 import { PhotoModeOverlay } from './components/ui/PhotoModeOverlay';
@@ -10,11 +10,14 @@ import { RouteSelectorModal } from './components/ui/RouteSelectorModal';
 import { WeatherSelector } from './components/ui/WeatherSelector';
 import { TripCompleteModal } from './components/ui/TripCompleteModal';
 import { PWAInstallBanner } from './components/ui/PWAInstallBanner';
+import { TrainingGuideModal } from './components/ui/TrainingGuideModal';
+import { ScenicHighlightCard } from './components/ui/ScenicHighlightCard';
 import { useTrainPhysics } from './hooks/useTrainPhysics';
 import { useRandomEvents } from './hooks/useRandomEvents';
 import { LOCOMOTIVES } from './data/trains';
+import { SCENIC_POINTS } from './data/scenicPoints';
 import { INITIAL_DRIVER_PROFILE } from './data/career';
-import { LocomotiveConfig, ServiceType, WeatherType, CameraViewMode, DriverProfile, Snapshot } from './types';
+import { LocomotiveConfig, ServiceType, WeatherType, CameraViewMode, DriverProfile, Snapshot, ScenicPoint } from './types';
 import { trainAudio } from './utils/audio';
 import { Play, Volume2 } from 'lucide-react';
 
@@ -39,7 +42,13 @@ export default function App() {
   const [isTrainSelectOpen, setIsTrainSelectOpen] = useState(false);
   const [isRouteSelectOpen, setIsRouteSelectOpen] = useState(false);
   const [isWeatherSelectOpen, setIsWeatherSelectOpen] = useState(false);
+  const [isTrainingGuideOpen, setIsTrainingGuideOpen] = useState(false);
   const [tripSummary, setTripSummary] = useState<any>(null);
+
+  // Scenic Points Notification System State
+  const [activeScenicPoint, setActiveScenicPoint] = useState<ScenicPoint | null>(null);
+  const [scenicDistance, setScenicDistance] = useState<number>(0);
+  const [dismissedScenicIds, setDismissedScenicIds] = useState<Set<string>>(new Set());
 
   // Driver Career Profile (Stored in localStorage)
   const [driverProfile, setDriverProfile] = useState<DriverProfile>(() => {
@@ -161,6 +170,51 @@ export default function App() {
     onTripComplete: handleTripComplete
   });
 
+  // Dynamic Scenic Points Proximity Trigger
+  useEffect(() => {
+    const currentZ = telemetry.trainPosition;
+    let foundScenic: ScenicPoint | null = null;
+    let shortestDist = Infinity;
+
+    for (const point of SCENIC_POINTS) {
+      if (dismissedScenicIds.has(point.id)) continue;
+      const dist = point.position - currentZ;
+      // Trigger card when approaching within 160m or passing within 40m
+      if (dist >= -40 && dist <= 160) {
+        if (Math.abs(dist) < Math.abs(shortestDist)) {
+          shortestDist = dist;
+          foundScenic = point;
+        }
+      }
+    }
+
+    if (foundScenic) {
+      setActiveScenicPoint(foundScenic);
+      setScenicDistance(shortestDist);
+    } else {
+      setActiveScenicPoint(null);
+    }
+  }, [telemetry.trainPosition, dismissedScenicIds]);
+
+  const handleDismissScenic = useCallback(() => {
+    if (activeScenicPoint) {
+      setDismissedScenicIds((prev) => new Set(prev).add(activeScenicPoint.id));
+      setActiveScenicPoint(null);
+    }
+  }, [activeScenicPoint]);
+
+  // Global Training shortcut (G)
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === 'g') {
+        setIsTrainingGuideOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
   // Random Events System Hook
   const {
     activeEvent,
@@ -221,6 +275,15 @@ export default function App() {
         tractionLocked={telemetry.tractionLocked}
       />
 
+      {/* SCENIC POINTS NOTIFICATION HIGHLIGHT CARD */}
+      {!isPhotoMode && activeScenicPoint && (
+        <ScenicHighlightCard
+          scenicPoint={activeScenicPoint}
+          distanceMeters={scenicDistance}
+          onDismiss={handleDismissScenic}
+        />
+      )}
+
       {/* PHOTO MODE (Hides HUD and provides full camera capture controls) */}
       <PhotoModeOverlay
         isActive={isPhotoMode}
@@ -254,6 +317,7 @@ export default function App() {
           onOpenTrainSelect={() => setIsTrainSelectOpen(true)}
           onOpenRouteSelect={() => setIsRouteSelectOpen(true)}
           onOpenWeatherSelect={() => setIsWeatherSelectOpen(true)}
+          onOpenTrainingGuide={() => setIsTrainingGuideOpen(true)}
           onEnterPhotoMode={() => setIsPhotoMode(true)}
           // Controls
           onSetThrottle={setThrottle}
@@ -291,6 +355,17 @@ export default function App() {
           </button>
         </div>
       )}
+
+      {/* Locomotive Training Guide Modal */}
+      <TrainingGuideModal
+        isOpen={isTrainingGuideOpen}
+        onClose={() => setIsTrainingGuideOpen(false)}
+        currentLoco={selectedLoco}
+        speedKmh={telemetry.speedKmh}
+        throttleNotch={telemetry.throttleNotch}
+        reverser={telemetry.reverser}
+        brake={telemetry.brake}
+      />
 
       {/* PWA Offline Ready & Install Banner */}
       <PWAInstallBanner />
@@ -359,4 +434,3 @@ export default function App() {
     </div>
   );
 }
-

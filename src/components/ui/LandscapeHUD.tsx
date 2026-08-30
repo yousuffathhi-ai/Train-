@@ -27,7 +27,8 @@ import {
   Compass,
   Maximize,
   Minimize,
-  Flame
+  Flame,
+  BookOpen
 } from 'lucide-react';
 
 interface LandscapeHUDProps {
@@ -44,6 +45,7 @@ interface LandscapeHUDProps {
   onOpenTrainSelect: () => void;
   onOpenRouteSelect: () => void;
   onOpenWeatherSelect: () => void;
+  onOpenTrainingGuide?: () => void;
   onEnterPhotoMode: () => void;
   // Controls
   onSetThrottle: (val: number) => void;
@@ -77,6 +79,7 @@ export function LandscapeHUD({
   onOpenTrainSelect,
   onOpenRouteSelect,
   onOpenWeatherSelect,
+  onOpenTrainingGuide,
   onEnterPhotoMode,
   onSetThrottle,
   onSetBrake,
@@ -313,6 +316,15 @@ export function LandscapeHUD({
           >
             <Eye className="w-3.5 h-3.5 text-sky-400" />
             <span className="hidden md:inline">Atmosphere</span>
+          </button>
+
+          <button
+            onClick={onOpenTrainingGuide}
+            title="Locomotive Training Guide (G)"
+            className="flex items-center gap-1 px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 rounded-xl border border-cyan-500/40 text-[11px] font-bold transition active:scale-95 cursor-pointer whitespace-nowrap"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">Training</span>
           </button>
 
           <button
