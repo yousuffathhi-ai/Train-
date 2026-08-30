@@ -1,0 +1,6 @@
+{
+  "name": "Train Simulator Eastern",
+  "description": "Ultra-realistic 3D Sri Lankan Train Simulator Progressive Web App featuring the scenic Batticaloa to Pottuvil coastal route with authentic locomotives, signaling, stations, and cab controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="128" fill="#0B0D0E"/>
+  <circle cx="256" cy="256" r="230" stroke="#CCFF00" stroke-width="8" fill="none" opacity="0.4"/>
+  <!-- Locomotive Silhouette -->
+  <path d="M128 360 L128 200 C128 140 160 110 256 110 C352 110 384 140 384 200 L384 360 Z" fill="#0055A5" stroke="#CCFF00" stroke-width="10"/>
+  <!-- Cab Window -->
+  <path d="M160 160 C160 140 180 130 256 130 C332 130 352 140 352 160 L352 230 L160 230 Z" fill="#111827"/>
+  <line x1="256" y1="130" x2="256" y2="230" stroke="#0055A5" stroke-width="8"/>
+  <!-- Stripe -->
+  <rect x="124" y="270" width="264" height="24" fill="#CCFF00"/>
+  <!-- Headlights -->
+  <circle cx="170" cy="330" r="24" fill="#FFFBEB" stroke="#CCFF00" stroke-width="4"/>
+  <circle cx="342" cy="330" r="24" fill="#FFFBEB" stroke="#CCFF00" stroke-width="4"/>
+  <circle cx="256" cy="200" r="14" fill="#FFFBEB"/>
+  <!-- Cowcatcher / Track -->
+  <path d="M110 380 L402 380 L360 420 L152 420 Z" fill="#374151" stroke="#CCFF00" stroke-width="6"/>
+  <line x1="140" y1="440" x2="372" y2="440" stroke="#9CA3AF" stroke-width="12"/>
+</svg>
