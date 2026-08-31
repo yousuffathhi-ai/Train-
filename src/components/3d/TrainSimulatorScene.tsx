@@ -142,6 +142,7 @@ export function TrainSimulatorScene({
             doorsOpen={doorsOpen}
             wipersOn={wipersOn}
             isCabView={isCabView}
+            isNight={isNight}
           />
 
           {/* 360° Interactive Cockpit Interior */}
@@ -161,6 +162,7 @@ export function TrainSimulatorScene({
               currentSignal={currentSignal}
               deadmanCountdown={deadmanCountdown}
               tractionLocked={tractionLocked}
+              weather={weather}
             />
           )}
         </group>

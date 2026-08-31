@@ -12,6 +12,7 @@ import { TripCompleteModal } from './components/ui/TripCompleteModal';
 import { PWAInstallBanner } from './components/ui/PWAInstallBanner';
 import { TrainingGuideModal } from './components/ui/TrainingGuideModal';
 import { ScenicHighlightCard } from './components/ui/ScenicHighlightCard';
+import { StationAnnouncementBanner } from './components/ui/StationAnnouncementBanner';
 import { useTrainPhysics } from './hooks/useTrainPhysics';
 import { useRandomEvents } from './hooks/useRandomEvents';
 import { LOCOMOTIVES } from './data/trains';
@@ -281,6 +282,15 @@ export default function App() {
           scenicPoint={activeScenicPoint}
           distanceMeters={scenicDistance}
           onDismiss={handleDismissScenic}
+        />
+      )}
+
+      {/* STATION ARRIVAL ANNOUNCEMENT BANNER */}
+      {!isPhotoMode && (
+        <StationAnnouncementBanner
+          station={currentTargetStation}
+          distanceMeters={distToStation}
+          speedKmh={telemetry.speedKmh}
         />
       )}
 

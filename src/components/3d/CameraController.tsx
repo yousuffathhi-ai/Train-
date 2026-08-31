@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -14,11 +14,32 @@ export function CameraController({ cameraMode, trainZ, speedKmh }: CameraControl
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
 
-  // Temporary vectors to avoid garbage collection overhead in requestAnimationFrame
+  // Passenger coach aisle walk offset (allows walking forward/back in coach aisle: -4.5m to +4.5m)
+  const [passengerAisleZ, setPassengerAisleZ] = useState(0);
+
+  // Temporary vectors to avoid garbage collection overhead
   const tempPos = useRef(new THREE.Vector3());
   const tempLook = useRef(new THREE.Vector3());
 
-  // Smooth sway & vibration for cab views based on speed
+  // Keyboard navigation for Passenger Aisle Walk-Through (W / S / Up / Down)
+  useEffect(() => {
+    if (cameraMode !== 'passenger') return;
+
+    const handleAisleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const key = e.key.toLowerCase();
+      if (key === 'arrowup' || key === 'w') {
+        setPassengerAisleZ((prev) => Math.max(-4.5, prev - 0.4));
+      } else if (key === 'arrowdown' || key === 's') {
+        setPassengerAisleZ((prev) => Math.min(4.5, prev + 0.4));
+      }
+    };
+
+    window.addEventListener('keydown', handleAisleKey);
+    return () => window.removeEventListener('keydown', handleAisleKey);
+  }, [cameraMode]);
+
+  // Smooth sway & vibration for cab and passenger views based on speed
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
     const speedFactor = Math.min(speedKmh / 100, 1.2);
@@ -32,9 +53,7 @@ export function CameraController({ cameraMode, trainZ, speedKmh }: CameraControl
       const driverHeadZ = trainZ - 2.2;
 
       if (controlsRef.current) {
-        // Smoothly follow train while allowing 360 mouse orbit
-        const prevTarget = controlsRef.current.target;
-        prevTarget.set(driverHeadX, driverHeadY, driverHeadZ);
+        controlsRef.current.target.set(driverHeadX, driverHeadY, driverHeadZ);
         controlsRef.current.update();
       }
     } else if (cameraMode === 'driver' || cameraMode === 'cab') {
@@ -47,6 +66,16 @@ export function CameraController({ cameraMode, trainZ, speedKmh }: CameraControl
 
       if (controlsRef.current) {
         controlsRef.current.target.copy(tempLook.current);
+      }
+    } else if (cameraMode === 'passenger') {
+      // Romanian Passenger Coach Interior View (Aisle Walk-through & 360° Window View)
+      const passengerX = 0.0 + cabSwayX * 0.5; // Center aisle
+      const passengerY = 1.88 + cabRumbleY * 0.6; // Standing / walking eye-level
+      const passengerZ = trainZ + 12.8 + passengerAisleZ; // Inside Coach #1
+
+      if (controlsRef.current) {
+        controlsRef.current.target.set(passengerX, passengerY, passengerZ);
+        controlsRef.current.update();
       }
     } else if (cameraMode === 'chase') {
       // Third-person chase camera behind and above the train
@@ -78,13 +107,6 @@ export function CameraController({ cameraMode, trainZ, speedKmh }: CameraControl
         controlsRef.current.target.lerp(tempLook.current, Math.min(1.0, delta * 8));
         controlsRef.current.update();
       }
-    } else if (cameraMode === 'passenger') {
-      // Inside Romanian coach looking out right towards Indian ocean
-      tempPos.current.set(1.15, 2.0, trainZ + 14);
-      tempLook.current.set(30, 1.0, trainZ + 10);
-
-      camera.position.lerp(tempPos.current, Math.min(1.0, delta * 15));
-      camera.lookAt(tempLook.current);
     } else if (cameraMode === 'passby') {
       // Trackside pass-by camera
       tempPos.current.set(-4.8, 1.5, trainZ - 40);
@@ -95,7 +117,7 @@ export function CameraController({ cameraMode, trainZ, speedKmh }: CameraControl
     }
   });
 
-  // When switching into cab360, set initial camera orientation facing front windshield
+  // Reset camera positions on mode change
   useEffect(() => {
     if (cameraMode === 'cab360') {
       camera.position.set(0.48, 1.85, trainZ - 2.19);
@@ -103,20 +125,28 @@ export function CameraController({ cameraMode, trainZ, speedKmh }: CameraControl
         controlsRef.current.target.set(0.48, 1.85, trainZ - 2.2);
         controlsRef.current.update();
       }
+    } else if (cameraMode === 'passenger') {
+      camera.position.set(0.0, 1.88, trainZ + 12.8 + passengerAisleZ - 0.05);
+      if (controlsRef.current) {
+        controlsRef.current.target.set(0.0, 1.88, trainZ + 12.8 + passengerAisleZ);
+        controlsRef.current.update();
+      }
     }
-  }, [cameraMode, camera]);
+  }, [cameraMode, camera, trainZ, passengerAisleZ]);
+
+  const isOrbital = cameraMode === 'cab360' || cameraMode === 'passenger' || cameraMode === 'chase' || cameraMode === 'coastal' || cameraMode === 'drone';
 
   return (
     <OrbitControls
       ref={controlsRef}
       enablePan={false}
       enableZoom={cameraMode === 'chase' || cameraMode === 'coastal' || cameraMode === 'drone'}
-      enableRotate={cameraMode === 'cab360' || cameraMode === 'chase' || cameraMode === 'coastal' || cameraMode === 'drone'}
-      maxPolarAngle={cameraMode === 'cab360' ? Math.PI - 0.1 : Math.PI / 2 - 0.03}
-      minPolarAngle={cameraMode === 'cab360' ? 0.1 : 0.2}
-      minDistance={cameraMode === 'cab360' ? 0.01 : 4}
-      maxDistance={cameraMode === 'cab360' ? 0.05 : 60}
-      rotateSpeed={cameraMode === 'cab360' ? -0.7 : 0.7}
+      enableRotate={isOrbital}
+      maxPolarAngle={cameraMode === 'cab360' || cameraMode === 'passenger' ? Math.PI - 0.1 : Math.PI / 2 - 0.03}
+      minPolarAngle={cameraMode === 'cab360' || cameraMode === 'passenger' ? 0.1 : 0.2}
+      minDistance={cameraMode === 'cab360' || cameraMode === 'passenger' ? 0.01 : 4}
+      maxDistance={cameraMode === 'cab360' || cameraMode === 'passenger' ? 0.05 : 60}
+      rotateSpeed={cameraMode === 'cab360' || cameraMode === 'passenger' ? -0.7 : 0.7}
       dampingFactor={0.08}
       enableDamping={true}
     />

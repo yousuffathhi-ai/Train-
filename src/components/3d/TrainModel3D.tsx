@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { LocomotiveConfig } from '../../types';
+import { CoachInterior3D } from './CoachInterior3D';
 
 interface TrainModel3DProps {
   locoConfig: LocomotiveConfig;
@@ -12,6 +13,7 @@ interface TrainModel3DProps {
   doorsOpen: { left: boolean; right: boolean };
   wipersOn: boolean;
   isCabView?: boolean;
+  isNight?: boolean;
 }
 
 // Single Bogie Wheelset
@@ -20,7 +22,6 @@ function Bogie3D({ position, speedKmh }: { position: [number, number, number]; s
 
   useFrame((_, delta) => {
     if (wheelsRef.current && speedKmh !== 0) {
-      // Rotate wheelset around X axis proportional to speed
       const angularVelocity = (speedKmh * 1000 / 3600) / 0.45; // radius ~0.45m
       wheelsRef.current.rotation.x -= angularVelocity * delta;
     }
@@ -60,20 +61,25 @@ function Bogie3D({ position, speedKmh }: { position: [number, number, number]; s
   );
 }
 
-// Authentic Sri Lankan Romanian Passenger Coach (Moulded Maroon Red with Silver Trim)
+// Authentic Sri Lankan Romanian Passenger Coach (Astra Red with Silver Trim + Full Interior)
 function RomanianPassengerCoach({
   position,
-  doorsOpen
+  doorsOpen,
+  isNight = false
 }: {
   position: [number, number, number];
   doorsOpen: { left: boolean; right: boolean };
+  isNight?: boolean;
 }) {
   const leftDoorOffset = doorsOpen.left ? -0.8 : 0;
   const rightDoorOffset = doorsOpen.right ? 0.8 : 0;
 
   return (
     <group position={position}>
-      {/* Coach Main Body - Authentic Romanian Astra Maroon Red */}
+      {/* 3D Interior Environment (Seats, Lights, Carpet, Aisle) */}
+      <CoachInterior3D position={[0, 0, 0]} isNight={isNight} />
+
+      {/* Coach Exterior Shell - Romanian Astra Maroon Red */}
       <mesh position={[0, 1.85, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.5, 2.5, 12.2]} />
         <meshStandardMaterial color="#881337" roughness={0.35} metalness={0.25} />
@@ -85,7 +91,7 @@ function RomanianPassengerCoach({
         <meshStandardMaterial color="#334155" roughness={0.5} metalness={0.4} />
       </mesh>
 
-      {/* Authentic Gold / Cream Waistline Trim Band */}
+      {/* Gold / Cream Waistline Trim Band */}
       <mesh position={[0, 1.35, 0]}>
         <boxGeometry args={[2.54, 0.28, 12.22]} />
         <meshStandardMaterial color="#FEF08A" emissive="#F59E0B" emissiveIntensity={0.2} />
@@ -97,7 +103,7 @@ function RomanianPassengerCoach({
         <meshStandardMaterial color="#0F172A" roughness={0.8} />
       </mesh>
 
-      {/* Authentic Romanian Coach Silver Windows (5 passenger bays per side) */}
+      {/* Romanian Coach Silver Windows (5 passenger bays per side) */}
       {[-4.2, -2.1, 0, 2.1, 4.2].map((wZ, idx) => (
         <group key={idx}>
           {/* Left Silver Window Frame */}
@@ -105,10 +111,10 @@ function RomanianPassengerCoach({
             <boxGeometry args={[0.04, 0.75, 1.3]} />
             <meshStandardMaterial color="#E2E8F0" metalness={0.8} roughness={0.2} />
           </mesh>
-          {/* Left Tinted Glass */}
+          {/* Left Clear Tinted Glass */}
           <mesh position={[-1.28, 2.1, wZ]}>
             <boxGeometry args={[0.02, 0.65, 1.2]} />
-            <meshStandardMaterial color="#0F172A" roughness={0.1} transparent opacity={0.7} />
+            <meshStandardMaterial color="#BAE6FD" roughness={0.05} transparent opacity={0.35} />
           </mesh>
 
           {/* Right Silver Window Frame */}
@@ -116,15 +122,15 @@ function RomanianPassengerCoach({
             <boxGeometry args={[0.04, 0.75, 1.3]} />
             <meshStandardMaterial color="#E2E8F0" metalness={0.8} roughness={0.2} />
           </mesh>
-          {/* Right Tinted Glass */}
+          {/* Right Clear Tinted Glass (Ocean side) */}
           <mesh position={[1.28, 2.1, wZ]}>
             <boxGeometry args={[0.02, 0.65, 1.2]} />
-            <meshStandardMaterial color="#0F172A" roughness={0.1} transparent opacity={0.7} />
+            <meshStandardMaterial color="#BAE6FD" roughness={0.05} transparent opacity={0.35} />
           </mesh>
         </group>
       ))}
 
-      {/* Passenger End Doors (Sliding door simulation) */}
+      {/* Passenger End Doors (Sliding Door Simulation) */}
       <mesh position={[-1.28 + (doorsOpen.left ? 0.05 : 0), 1.7, -5.2 + leftDoorOffset]}>
         <boxGeometry args={[0.06, 1.8, 0.9]} />
         <meshStandardMaterial color="#0F172A" metalness={0.7} />
@@ -155,7 +161,8 @@ export function TrainModel3D({
   cabLightOn,
   doorsOpen,
   wipersOn,
-  isCabView = false
+  isCabView = false,
+  isNight = false
 }: TrainModel3DProps) {
   const wiperRef = useRef<THREE.Group>(null);
 
@@ -204,7 +211,7 @@ export function TrainModel3D({
           </group>
         )}
 
-        {/* Low Short Hood / Front Nose (Low-profile GM M2 style at y = 0.85 - 0.95 so driver sees over it clearly!) */}
+        {/* Low Short Hood / Front Nose (Low-profile GM M2 style at y = 0.92 so driver sees over it clearly!) */}
         <mesh position={[0, 0.92, -4.8]} castShadow>
           <boxGeometry args={[2.2, 0.72, 2.2]} />
           <meshStandardMaterial color={locoConfig.color} roughness={0.35} metalness={0.4} />
@@ -268,10 +275,9 @@ export function TrainModel3D({
           </group>
         )}
 
-        {/* ================= 3D ACTIVE HEADLIGHTS & SPOTLIGHTS ================= */}
+        {/* 3D Active Headlights & Spotlights */}
         {isLightActive && (
           <>
-            {/* Primary High-Power Track Spotlight Beam */}
             <spotLight
               position={[0, 1.6, -6.6]}
               target-position={[0, 0, isLightBright ? -140 : -65]}
@@ -282,16 +288,12 @@ export function TrainModel3D({
               color="#FFFFF0"
               castShadow
             />
-
-            {/* Left Beam */}
             <pointLight
               position={[-0.8, 1.2, -6.4]}
               color="#FFFFF0"
               intensity={isLightBright ? 5 : 2}
               distance={isLightBright ? 30 : 15}
             />
-
-            {/* Right Beam */}
             <pointLight
               position={[0.8, 1.2, -6.4]}
               color="#FFFFF0"
@@ -341,18 +343,21 @@ export function TrainModel3D({
         <Bogie3D position={[0, 0, 3.8]} speedKmh={speedKmh} />
       </group>
 
-      {/* ================= ICONIC SRI LANKAN ROMANIAN RED COACHES (STRICTLY BEHIND LOCO) ================= */}
+      {/* ================= ICONIC SRI LANKAN ROMANIAN RED COACHES WITH 3D INTERIOR ================= */}
       <RomanianPassengerCoach
         position={[0, 0, 12.8]}
         doorsOpen={doorsOpen}
+        isNight={isNight}
       />
       <RomanianPassengerCoach
         position={[0, 0, 25.4]}
         doorsOpen={doorsOpen}
+        isNight={isNight}
       />
       <RomanianPassengerCoach
         position={[0, 0, 38.0]}
         doorsOpen={doorsOpen}
+        isNight={isNight}
       />
     </group>
   );
