@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { LocomotiveConfig } from '../../types';
 import { CoachInterior3D } from './CoachInterior3D';
+import { ClassM2Locomotive } from './ClassM2Locomotive';
 
 interface TrainModel3DProps {
   locoConfig: LocomotiveConfig;
@@ -164,184 +165,19 @@ export function TrainModel3D({
   isCabView = false,
   isNight = false
 }: TrainModel3DProps) {
-  const wiperRef = useRef<THREE.Group>(null);
-
-  useFrame((state) => {
-    if (wiperRef.current && wipersOn) {
-      wiperRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 5) * 0.45;
-    }
-  });
-
-  const isLightBright = headlightMode === 'bright';
-  const isLightDim = headlightMode === 'dim';
-  const isLightActive = headlightsOn || isLightBright || isLightDim;
-
   return (
     <group position={[0, 0, 0]}>
-      {/* ================= LOCOMOTIVE ENGINE (CLASS M2 / GM G12 DIESEL) ================= */}
-      <group position={[0, 0, 0]}>
-        
-        {/* Long Rear Engine Hood (From z = 0.5 to z = +6.0) */}
-        <mesh position={[0, 1.85, 3.2]} castShadow receiveShadow>
-          <boxGeometry args={[2.35, 2.4, 5.6]} />
-          <meshStandardMaterial
-            color={locoConfig.color}
-            roughness={0.35}
-            metalness={0.4}
-          />
-        </mesh>
-
-        {/* Outer Cab Shell for External Cameras (Omitted in Cab View so track is 100% clear) */}
-        {!isCabView && (
-          <group>
-            {/* Elevated Cab Roof Section */}
-            <mesh position={[0, 3.2, -1.8]} castShadow>
-              <boxGeometry args={[2.45, 0.3, 3.6]} />
-              <meshStandardMaterial color={locoConfig.roofColor} roughness={0.5} metalness={0.6} />
-            </mesh>
-            {/* Cab Side Panels */}
-            <mesh position={[-1.22, 2.0, -1.8]} castShadow>
-              <boxGeometry args={[0.08, 2.2, 3.6]} />
-              <meshStandardMaterial color={locoConfig.color} roughness={0.35} metalness={0.4} />
-            </mesh>
-            <mesh position={[1.22, 2.0, -1.8]} castShadow>
-              <boxGeometry args={[0.08, 2.2, 3.6]} />
-              <meshStandardMaterial color={locoConfig.color} roughness={0.35} metalness={0.4} />
-            </mesh>
-          </group>
-        )}
-
-        {/* Low Short Hood / Front Nose (Low-profile GM M2 style at y = 0.92 so driver sees over it clearly!) */}
-        <mesh position={[0, 0.92, -4.8]} castShadow>
-          <boxGeometry args={[2.2, 0.72, 2.2]} />
-          <meshStandardMaterial color={locoConfig.color} roughness={0.35} metalness={0.4} />
-        </mesh>
-
-        {/* Front Walkway Platform & Pilot Deck */}
-        <mesh position={[0, 0.58, -5.9]} receiveShadow>
-          <boxGeometry args={[2.4, 0.12, 1.4]} />
-          <meshStandardMaterial color="#1E293B" metalness={0.8} />
-        </mesh>
-
-        {/* Front Safety Handrails (White / Yellow) */}
-        <group position={[0, 1.05, -6.4]}>
-          <mesh position={[-1.1, 0, 0]}>
-            <cylinderGeometry args={[0.02, 0.02, 0.85, 8]} />
-            <meshStandardMaterial color="#FEF08A" metalness={0.6} />
-          </mesh>
-          <mesh position={[1.1, 0, 0]}>
-            <cylinderGeometry args={[0.02, 0.02, 0.85, 8]} />
-            <meshStandardMaterial color="#FEF08A" metalness={0.6} />
-          </mesh>
-          <mesh position={[0, 0.4, 0]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.02, 0.02, 2.2, 8]} />
-            <meshStandardMaterial color="#FEF08A" metalness={0.6} />
-          </mesh>
-        </group>
-
-        {/* Heavy Sri Lankan Railway Cowcatcher / Pilot on Front Buffer Beam */}
-        <mesh position={[0, 0.32, -6.55]} rotation={[-0.35, 0, 0]} castShadow>
-          <boxGeometry args={[2.3, 0.55, 0.4]} />
-          <meshStandardMaterial color="#0B0D0E" metalness={0.9} />
-        </mesh>
-
-        {/* Engine Roof Exhaust Stacks */}
-        <mesh position={[0, 3.4, 2.2]} castShadow>
-          <cylinderGeometry args={[0.22, 0.25, 0.45, 12]} />
-          <meshStandardMaterial color="#1E293B" metalness={0.9} />
-        </mesh>
-        <mesh position={[0, 3.4, 4.2]} castShadow>
-          <cylinderGeometry args={[0.2, 0.22, 0.35, 12]} />
-          <meshStandardMaterial color="#1E293B" metalness={0.9} />
-        </mesh>
-
-        {/* Classic Gold Accent Stripe */}
-        <mesh position={[0, 1.25, 3.2]}>
-          <boxGeometry args={[2.42, 0.25, 5.62]} />
-          <meshStandardMaterial
-            color={locoConfig.accentColor}
-            emissive={locoConfig.accentColor}
-            emissiveIntensity={0.25}
-          />
-        </mesh>
-
-        {/* Front Nose Wiper Blade */}
-        {!isCabView && (
-          <group ref={wiperRef} position={[0, 2.05, -3.8]}>
-            <mesh position={[0, 0.25, 0]}>
-              <boxGeometry args={[0.03, 0.5, 0.02]} />
-              <meshStandardMaterial color="#111827" metalness={0.9} />
-            </mesh>
-          </group>
-        )}
-
-        {/* 3D Active Headlights & Spotlights */}
-        {isLightActive && (
-          <>
-            <spotLight
-              position={[0, 1.6, -6.6]}
-              target-position={[0, 0, isLightBright ? -140 : -65]}
-              angle={isLightBright ? 0.48 : 0.38}
-              penumbra={0.5}
-              intensity={isLightBright ? 18 : 7}
-              distance={isLightBright ? 160 : 75}
-              color="#FFFFF0"
-              castShadow
-            />
-            <pointLight
-              position={[-0.8, 1.2, -6.4]}
-              color="#FFFFF0"
-              intensity={isLightBright ? 5 : 2}
-              distance={isLightBright ? 30 : 15}
-            />
-            <pointLight
-              position={[0.8, 1.2, -6.4]}
-              color="#FFFFF0"
-              intensity={isLightBright ? 5 : 2}
-              distance={isLightBright ? 30 : 15}
-            />
-          </>
-        )}
-
-        {/* Left Headlamp Housing */}
-        <mesh position={[-0.75, 1.25, -6.4]}>
-          <sphereGeometry args={[0.16, 16, 16]} />
-          <meshStandardMaterial
-            color={isLightActive ? "#FFFBEB" : "#475569"}
-            emissive={isLightActive ? "#FEF08A" : "#000000"}
-            emissiveIntensity={isLightBright ? 4.5 : isLightDim ? 2.0 : 0}
-          />
-        </mesh>
-
-        {/* Right Headlamp Housing */}
-        <mesh position={[0.75, 1.25, -6.4]}>
-          <sphereGeometry args={[0.16, 16, 16]} />
-          <meshStandardMaterial
-            color={isLightActive ? "#FFFBEB" : "#475569"}
-            emissive={isLightActive ? "#FEF08A" : "#000000"}
-            emissiveIntensity={isLightBright ? 4.5 : isLightDim ? 2.0 : 0}
-          />
-        </mesh>
-
-        {/* Top Center Golden Marker Lamp */}
-        <mesh position={[0, 1.9, -5.9]}>
-          <sphereGeometry args={[0.12, 16, 16]} />
-          <meshStandardMaterial
-            color={isLightActive ? "#FFFBEB" : "#475569"}
-            emissive={isLightActive ? "#FEF08A" : "#000000"}
-            emissiveIntensity={isLightActive ? 3.0 : 0}
-          />
-        </mesh>
-
-        {/* Cab Interior Light */}
-        {cabLightOn && (
-          <pointLight position={[0, 2.2, -2.0]} color="#FEF3C7" intensity={2.2} distance={6} />
-        )}
-
-        {/* Locomotive Heavy GM 6-Wheel Bogies */}
-        <Bogie3D position={[0, 0, -2.6]} speedKmh={speedKmh} />
-        <Bogie3D position={[0, 0, 3.8]} speedKmh={speedKmh} />
-      </group>
+      {/* ================= HIGH-FIDELITY SRI LANKA RAILWAYS CLASS M2 (EMD G12) DIESEL LOCOMOTIVE ================= */}
+      <ClassM2Locomotive
+        locoConfig={locoConfig}
+        speedKmh={speedKmh}
+        headlightsOn={headlightsOn}
+        headlightMode={headlightMode}
+        cabLightOn={cabLightOn}
+        wipersOn={wipersOn}
+        isCabView={isCabView}
+        isNight={isNight}
+      />
 
       {/* ================= ICONIC SRI LANKAN ROMANIAN RED COACHES WITH 3D INTERIOR ================= */}
       <RomanianPassengerCoach
