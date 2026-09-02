@@ -41,21 +41,21 @@ export const LOCOMOTIVES: LocomotiveConfig[] = [
   },
   {
     id: 'm4_diesel_loco',
-    name: 'Class M4 Classic MLW Diesel',
+    name: 'Class M4 (MLW MX-620) Heavy Diesel',
     classType: 'Montreal Locomotive Works Heavy Road Switcher',
-    description: 'Iconic heavy road switcher locomotive manufactured by Montreal Locomotive Works (MLW), renowned for hauling classic Sri Lankan maroon express coaches.',
-    color: '#881337', // Crimson / Maroon
-    accentColor: '#0284C7', // Sky Blue band
-    stripeColor: '#F59E0B', // Gold stripe
-    roofColor: '#334155',
-    maxSpeed: 110,
-    powerKW: 1750,
-    weightTons: 84,
-    hornType: 'deep_diesel',
-    coachCount: 5,
+    description: 'Iconic ALCO 251 V12 turbocharged diesel-electric road switcher with angled cab windshield, Cerulean Blue & Off-White livery, and Co-Co 6-axle bogies.',
+    color: '#0083BE', // Cerulean Blue
+    accentColor: '#F8C300', // Vivid Yellow stripe
+    stripeColor: '#DCE1E3', // Off-White upper hood
+    roofColor: '#DCE1E3',
+    maxSpeed: 105,
+    powerKW: 1790,
+    weightTons: 94.5,
+    hornType: 'dual_tone',
+    coachCount: 4,
     coachColor: '#881337', // Red Romanian Coaches
-    coachStripe: '#F59E0B',
-    unlockedAtLevel: 3,
+    coachStripe: '#FEF08A',
+    unlockedAtLevel: 1,
     iconName: 'ShieldAlert'
   },
   {

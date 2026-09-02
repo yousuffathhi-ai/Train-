@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { LocomotiveConfig } from '../../types';
 import { CoachInterior3D } from './CoachInterior3D';
 import { ClassM2Locomotive } from './ClassM2Locomotive';
+import { ClassM4Locomotive } from './ClassM4Locomotive';
 
 interface TrainModel3DProps {
   locoConfig: LocomotiveConfig;
@@ -165,19 +166,34 @@ export function TrainModel3D({
   isCabView = false,
   isNight = false
 }: TrainModel3DProps) {
+  const isM4 = locoConfig?.id === 'm4_diesel_loco';
+
   return (
     <group position={[0, 0, 0]}>
-      {/* ================= HIGH-FIDELITY SRI LANKA RAILWAYS CLASS M2 (EMD G12) DIESEL LOCOMOTIVE ================= */}
-      <ClassM2Locomotive
-        locoConfig={locoConfig}
-        speedKmh={speedKmh}
-        headlightsOn={headlightsOn}
-        headlightMode={headlightMode}
-        cabLightOn={cabLightOn}
-        wipersOn={wipersOn}
-        isCabView={isCabView}
-        isNight={isNight}
-      />
+      {/* ================= HIGH-FIDELITY SRI LANKA RAILWAYS DIESEL LOCOMOTIVES ================= */}
+      {isM4 ? (
+        <ClassM4Locomotive
+          locoConfig={locoConfig}
+          speedKmh={speedKmh}
+          headlightsOn={headlightsOn}
+          headlightMode={headlightMode}
+          cabLightOn={cabLightOn}
+          wipersOn={wipersOn}
+          isCabView={isCabView}
+          isNight={isNight}
+        />
+      ) : (
+        <ClassM2Locomotive
+          locoConfig={locoConfig}
+          speedKmh={speedKmh}
+          headlightsOn={headlightsOn}
+          headlightMode={headlightMode}
+          cabLightOn={cabLightOn}
+          wipersOn={wipersOn}
+          isCabView={isCabView}
+          isNight={isNight}
+        />
+      )}
 
       {/* ================= ICONIC SRI LANKAN ROMANIAN RED COACHES WITH 3D INTERIOR ================= */}
       <RomanianPassengerCoach
